@@ -14,3 +14,10 @@ def authentication(request):
         else:
             print("Incorrect password")
     return render(request, 'authentication.html')
+
+
+def forget_password(request):
+    return render(request, 'forget_password.html')
+
+def registration(request):
+    return render(request, 'registration.html')
