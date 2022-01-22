@@ -55,7 +55,13 @@
         <nav id="navbar" class="navbar">
             <ul>
                 <li><a class="nav-link scrollto" href="{% url 'about' %}">О нас</a></li>
+
+                {% if user.is_authenticated %}
+                <li><a class="nav-link scrollto" href="{% url 'authentication' %}">Мой профиль</a></li>
+                {% else %}
                 <li><a class="nav-link scrollto" href="{% url 'authentication' %}">Вход\Регистрация</a></li>
+                {% endif %}
+
                 <li><a class="nav-link scrollto" href="{% url 'contacts' %}">Контакты</a></li>
             </ul>
             <i class="bi bi-list mobile-nav-toggle"></i>
