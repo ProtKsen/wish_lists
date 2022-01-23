@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-
+from django.contrib import messages
 
 def authentication(request):
     if request.method == "POST":
@@ -12,13 +12,14 @@ def authentication(request):
             login(request, user)
             return redirect('home')
         else:
-            print("Incorrect password")
+            messages.error(request, 'Неверное имя пользователя или пароль')
     return render(request, 'authentication.html')
 
 
 def authlogout(request):
     logout(request)
-    return redirect('home')
+    messages.success(request, 'Вы успешно вышли из аккаунта')
+    return redirect('authentication')
 
 
 def forget_password(request):
