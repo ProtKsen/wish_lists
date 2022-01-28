@@ -57,7 +57,13 @@
                 <li><a class="nav-link scrollto" href="{% url 'about' %}">О нас</a></li>
 
                 {% if user.is_authenticated %}
-                <li><a class="nav-link scrollto" href="{% url 'authentication' %}">Мой профиль</a></li>
+                <li class="dropdown"><a href="{% url 'userprofile' %}"><span>Мой профиль</span> <i
+                        class="bi bi-chevron-down"></i></a>
+                    <ul>
+                        <li><a href="{% url 'userprofile' %}">Мой профиль</a></li>
+                        <li><a href="{% url 'logout' %}">Выйти из акканта</a></li>
+                    </ul>
+                </li>
                 {% else %}
                 <li><a class="nav-link scrollto" href="{% url 'authentication' %}">Вход\Регистрация</a></li>
                 {% endif %}
