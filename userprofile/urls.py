@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = [
     path('', views.userprofile, name='userprofile'),
-
+    path('add_wish/', views.addwish, name='addwish'),
+    path('wish_details/<int:id>/', views.wish_details, name='wishdetails'),
     ]
