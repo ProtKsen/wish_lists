@@ -19,10 +19,10 @@ Giftnet
         <div class="row" data-aos="fade-in">
             <div class="col-lg-12 d-flex justify-content-center">
                 <ul id="portfolio-flters">
-                    <li data-filter="*" class="filter-active">Все</li>
-                    <li data-filter=".filter-app">Впечатления</li>
-                    <li data-filter=".filter-card">Вещи</li>
-                    <li data-filter=".filter-web">Блюда</li>
+                    <li data-filter="*" class="filter-active"> Все</li>
+                    {% for row in all_types %}
+                    <li data-filter=".{{ row.type }}" class="filter-active"> {{ row.type }}</li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -30,7 +30,7 @@ Giftnet
 
         <div class="row portfolio-container" data-aos="fade-up">
             {% for row in wishdata %}
-            <div class="col-lg-4 col-md-6 portfolio-item filter-app">
+            <div class="col-lg-4 col-md-6 portfolio-item {{ row.type }}">
                 <div class="portfolio-wrap">
                     <h3> {{ row.title }} </h3>
                     <img src="{{ row.image.url }}" class="img-fluid" alt="">

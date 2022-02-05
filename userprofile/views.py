@@ -4,12 +4,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import Wish
+from django.db.models import Count
 
 
 def userprofile(request):
     wishdata = Wish.objects.filter(username=request.user)
+    all_types = Wish.objects.values('type').annotate(type_count=Count('type')).filter(type_count=1, username=request.user)
     context = {
         'wishdata': wishdata,
+        'all_types': all_types
     }
     return render(request, 'user_profile.html', context)
 
