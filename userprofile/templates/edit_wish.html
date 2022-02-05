@@ -14,24 +14,26 @@
                         {% csrf_token %}
                         <div class="form-group mt-3">
                             <input type="text" class="form-control" name="title" id="title" placeholder="Название"
-                                   required>
+                                   value="{{ title }}" required>
                         </div>
                         <div class="form-group mt-3">
-                            <input type="url" class="form-control" name="link" id="link" placeholder="Ссылка">
+                            <input type="url" class="form-control" name="link" id="link" placeholder="Ссылка"
+                                   value="{{ link }}">
                         </div>
                         <div class="form-group mt-3">
-                            <input type="text" class="form-control" name="type" id="type" placeholder="Раздел">
+                            <input type="text" class="form-control" name="type" id="type" placeholder="Раздел"
+                                   value="{{ type }}">
                         </div>
                         <div class="form-group mt-3">
                             <textarea class="form-control" name="description" rows="5"
-                                      placeholder="Описание"></textarea>
+                                      placeholder="Описание"> {{ description }} </textarea>
                         </div>
                         <div class="form-group">
                             <label for="uploadimage">Example file input</label>
                             <input type="file" class="form-control-file" id="uploadimage" name="uploadimage">
                         </div>
                         <div class="text-center">
-                            <button class="btn btn-success" type="submit">Добавить</button>
+                            <button class="btn btn-success" type="submit">Сохранить</button>
                         </div>
                     </form>
                 </div>

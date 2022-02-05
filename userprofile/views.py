@@ -7,7 +7,7 @@ from .models import Wish
 
 
 def userprofile(request):
-    wishdata = Wish.objects.all()
+    wishdata = Wish.objects.filter(username=request.user)
     context = {
         'wishdata': wishdata,
     }
@@ -16,13 +16,51 @@ def userprofile(request):
 
 def addwish(request):
     if request.method == "POST":
-        title = request.POST.get('title')
-        link = request.POST.get('link')
-        description = request.POST.get('description')
-        wishdata = Wish(title=title, link=link, description=description)
+        wish_data = {}
+        for i in request.POST.keys():
+            if i in ['title', 'link', 'description', 'username', 'type']:
+                wish_data[i] = request.POST.get(i)
+        wish_data['username'] = User.objects.get(username=request.user)
+        try:
+            wish_data['image'] = request.FILES['uploadimage']
+        except:
+            pass
+        wishdata = Wish(**wish_data)
         wishdata.save()
         return redirect('userprofile')
     return render(request, 'add_wish.html')
+
+
+def delete_wish(request, id):
+    wishdata = Wish.objects.get(id=id)
+    wishdata.delete()
+    return redirect('userprofile')
+
+
+def edit_wish(request, id):
+    if request.method == "POST":
+        wishdata = Wish.objects.get(id=id)
+        wish_data = {}
+        for i in request.POST.keys():
+            if i in ['title', 'link', 'description', 'username', 'type']:
+                wish_data[i] = request.POST.get(i)
+        wish_data['username'] = User.objects.get(username=request.user)
+        try:
+            wish_data['image'] = request.FILES['uploadimage']
+        except:
+            pass
+        wishdata.save()
+        return redirect('userprofile')
+    else:
+        wishdata = Wish.objects.get(id=id)
+        context = {
+            'title': wishdata.title,
+            'link': wishdata.link,
+            'description': wishdata.description,
+            'image': wishdata.image,
+            'type': wishdata.type
+        }
+        return render(request, 'edit_wish.html', context)
 
 
 def wish_details(request, id):
