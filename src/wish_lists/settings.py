@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 import dotenv
+import json
 from pathlib import Path
 from django.contrib.messages import constants as messages
 
@@ -32,7 +33,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = json.loads(os.environ['ALLOWED_HOSTS'])
 
 
 # Application definition
