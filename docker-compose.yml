@@ -1,0 +1,17 @@
+version: '3'
+services:
+  webapp:
+    build: .
+    tty: true
+    env_file:
+      - .env
+    command: 
+      python src/manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    working_dir: /webapp
+    networks:
+      - backend
+
+networks:
+  backend:
