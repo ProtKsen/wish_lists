@@ -10,7 +10,7 @@ def authentication(request):
         name = request.POST['name']
         password = request.POST['password']
         user = authenticate(request, username=name, password=password)
-        if user is not None:
+        if user:
             login(request, user)
             return redirect('userprofile')
         else:
@@ -20,8 +20,7 @@ def authentication(request):
 
 def authlogout(request):
     logout(request)
-    messages.success(request, 'Вы успешно вышли из аккаунта')
-    return redirect('authentication')
+    return redirect('home')
 
 
 def forget_password(request):
@@ -36,13 +35,14 @@ def authregistration(request):
         confirm_password = request.POST['confirm_password']
         if password == confirm_password:
             if User.objects.filter(username=name).exists():
-                messages.error(request, 'Пользователь с таким именем уже сущетсвует')
+                messages.error(request, 'Пользователь с таким именем уже существует')
             elif User.objects.filter(email=email).exists():
-                messages.error(request, 'Пользователь с таким email уже сущетсвует')
+                messages.error(request, 'Пользователь с таким email уже существует')
             else:
                 user = User.objects.create_user(username=name, email=email, password=password)
                 user.save()
-                messages.success(request, 'Вы успешно зарегистрированы!')
+                login(request, user)
+                return redirect('userprofile')
         else:
             messages.error(request, 'Пароли не совпадают')
     return render(request, 'registration.html')
