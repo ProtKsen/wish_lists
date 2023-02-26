@@ -6,7 +6,7 @@
         "type": "python",
         "request": "launch",
         "stopOnEntry": false,
-        "program": "${workspaceRoot}/manage.py",
+        "program": "${workspaceRoot}/src/manage.py",
         "args": [
             "runserver",
             "--no-color",
