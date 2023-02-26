@@ -8,6 +8,7 @@ authors = ["ProtKsen <protcenko.kseniya@gmail.com>"]
 python = "^3.10"
 Django = "^4.1.7"
 python-dotenv = "^1.0.0"
+Pillow = "^9.4.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.961"
