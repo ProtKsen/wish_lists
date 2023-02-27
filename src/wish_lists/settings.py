@@ -90,7 +90,11 @@ WSGI_APPLICATION = 'wish_lists.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': str(os.getenv("DATABASE_NAME")),
+        'USER': str(os.getenv("DATABASE_USER")),
+        'PASSWORD': str(os.getenv("DATABASE_PASSWORD")),
+        'HOST': str(os.getenv("DATABASE_HOST")),
+        'PORT': 3306,
     }
 }
 
