@@ -9,10 +9,11 @@ from django.db.models import Count
 
 def userprofile(request):
     wishdata = Wish.objects.filter(username=request.user)
-    all_types = Wish.objects.values('type').annotate(type_count=Count('type')).filter(type_count=1, username=request.user)
+    all_types = list(Wish.objects.values('type').filter(username=request.user))
+    set_of_types = set([i['type'] for i in all_types])
     context = {
         'wishdata': wishdata,
-        'all_types': all_types
+        'set_of_types': set_of_types
     }
     return render(request, 'user_profile.html', context)
 

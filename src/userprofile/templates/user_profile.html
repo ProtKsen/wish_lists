@@ -20,8 +20,8 @@ Giftnet
             <div class="col-lg-12 d-flex justify-content-center">
                 <ul id="portfolio-flters">
                     <li data-filter="*" class="filter-active"> Все</li>
-                    {% for row in all_types %}
-                    <li data-filter=".{{ row.type }}" class="filter-active"> {{ row.type }}</li>
+                    {% for type in set_of_types %}
+                    <li data-filter=".{{ type }}" class="filter-active"> {{ type }}</li>
                     {% endfor %}
                 </ul>
             </div>
