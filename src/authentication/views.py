@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
 
 
 def authentication(request):
@@ -41,6 +42,12 @@ def authregistration(request):
             else:
                 user = User.objects.create_user(username=name, email=email, password=password)
                 user.save()
+
+                email_subject = 'Giftnet. Registration completed successfully.'
+                email_body = f'Hello, {name}! \n Welcome to Giftnet!'
+                email = EmailMessage(email_subject, email_body, to=[email])
+                email.send()
+
                 login(request, user)
                 return redirect('userprofile')
         else:
