@@ -54,7 +54,6 @@
 
         <nav id="navbar" class="navbar">
             <ul>
-                <li><a class="nav-link scrollto" href="{% url 'about' %}">О нас</a></li>
 
                 {% if user.is_authenticated %}
                 <li class="dropdown"><a href="{% url 'userprofile' %}"><span>Мой профиль</span> <i
