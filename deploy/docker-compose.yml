@@ -1,0 +1,41 @@
+version: '3'
+services:
+  webapp:
+    image: ghcr.io/protksen/wish_lists:v0.1.3
+    tty: true
+    restart: always
+    env_file:
+      - .env
+    working_dir: /webapp
+    command: 
+      bash -c "python src/manage.py migrate && python src/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    volumes:
+      - ./config:/webapp/config:ro
+      - .:/app
+      - /tmp/app/mysqld:/run/mysqld
+      - '.:/code'
+    networks:
+      - backend
+  db:
+    container_name: mysql_new_db
+    image: mysql:latest
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MYSQL_HOST=${DATABASE_HOST}
+    volumes:
+      - .:/app
+      - mysql_new_data:/var/lib/mysql
+
+networks:
+  backend:
+
+volumes:
+  mysql_new_data:
