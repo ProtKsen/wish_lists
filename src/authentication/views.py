@@ -34,10 +34,6 @@ def authlogout(request):
     return redirect('home')
 
 
-def forget_password(request):
-    return render(request, 'forget_password.html')
-
-
 def authregistration(request):
     if request.method == "POST":
         name = request.POST['name']
@@ -103,3 +99,54 @@ def authverification(request, name, token):
             messages.error(request, 'Введен неверный код.')
 
     return render(request, 'verification.html')
+
+
+def reset_password(request):
+    if request.method == "POST":
+        email = request.POST['email']
+        if not User.objects.filter(email=email).exists():
+            messages.error(request, 'Пользователя с таким email не существует')
+        else:
+            user = User.objects.get(email=email)
+            email_subject = 'Giftnet. Verification code.'
+            verif_password = random.randint(1000, 9999)
+            email_body = f'Password is {verif_password}'
+            email = EmailMessage(email_subject, email_body, to=[email])
+            email.send()
+
+            salt = HashSalt.objects.get(user=user)
+
+            hashed_verif_password = hashed(str(verif_password), str(salt))
+
+            return redirect('reset_pass_verification', user.username, hashed_verif_password)
+
+    return render(request, 'reset_password.html')
+
+
+def reset_pass_verification(request, name, token):
+    if request.method == "POST":
+        password = request.POST['token']
+        user = User.objects.get(username=name)
+        salt = HashSalt.objects.get(user=user)
+        if hashed(password, str(salt)) == token:
+            return redirect('change_password', user.username)
+        messages.error(request, 'Введен неверный код.')
+    return render(request, 'reset_pass_verification.html')
+
+
+def change_password(request, name):
+    if request.method == "POST":
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+        if password == confirm_password:
+            user = User.objects.get(username=name)
+            user.set_password(password)
+            user.save()
+            email_subject = 'Giftnet. Password was changed.'
+            email_body = f'Hello, {user.username}! \n Your password was successfully changed.'
+            email = EmailMessage(email_subject, email_body, to=[user.email])
+            email.send()
+            return redirect('authentication')
+        else:
+            messages.error(request, 'Пароли не совпадают')
+    return render(request, 'change_password.html')
