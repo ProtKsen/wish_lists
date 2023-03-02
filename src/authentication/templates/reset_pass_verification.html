@@ -4,6 +4,7 @@
 Giftnet
 {% endblock %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -31,8 +32,7 @@ Giftnet
 
                     <!-- Email input -->
                     <div class="form-outline mb-4">
-                        <input type="password" name="token" id="token" class="form-control"
-                               placeholder="Код из письма"/>
+                        {{ form.verification_code|as_crispy_field }}
                     </div>
 
                     <div class="text-center text-lg-start mt-4 pt-2">
