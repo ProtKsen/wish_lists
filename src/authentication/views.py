@@ -6,11 +6,16 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
+from authentication.forms import (
+    EmailForm,
+    LoginForm,
+    NewPasswordForm,
+    RegistrationForm,
+    VerificationCodeForm,
+)
 from authentication.models import HashSalt
-from authentication.forms import RegistrationForm, LoginForm, EmailForm, VerificationCodeForm, NewPasswordForm
 
 
 def hashed(in_line: str, salt: str):
