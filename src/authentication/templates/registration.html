@@ -4,6 +4,7 @@
 Giftnet
 {% endblock %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -28,29 +29,17 @@ Giftnet
 
                 <form action="" method="post">
                     {% csrf_token %}
-
-                    <!-- Username input -->
                     <div class="form-outline mb-4">
-                        <input type="text" name="name" id="name" class="form-control"
-                               placeholder="Имя пользователя"/>
+                        {{ form.username|as_crispy_field }}
                     </div>
-
-                    <!-- Email input -->
                     <div class="form-outline mb-4">
-                        <input type="email" name="email" id="email" class="form-control"
-                               placeholder="Адрес электронной почты"/>
+                        {{ form.email|as_crispy_field }}
                     </div>
-
-                    <!-- Password input -->
-                    <div class="form-outline mb-3">
-                        <input type="password" name="password" id="password" class="form-control"
-                               placeholder="Пароль"/>
+                    <div class="form-outline mb-4">
+                        {{ form.password|as_crispy_field }}
                     </div>
-
-                    <!-- Confirm password input -->
-                    <div class="form-outline mb-3">
-                        <input type="password" name="confirm_password" id="confirm_password" class="form-control"
-                               placeholder="Подтвердите пароль"/>
+                    <div class="form-outline mb-4">
+                        {{ form.confirm_password|as_crispy_field }}
                     </div>
 
                     <div class="text-center text-lg-start mt-4 pt-2">

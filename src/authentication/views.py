@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 from authentication.models import HashSalt
+from authentication.forms import RegistrationForm
 
 
 def hashed(in_line: str, salt: str):
@@ -36,42 +37,48 @@ def authlogout(request):
 
 def authregistration(request):
     if request.method == "POST":
-        name = request.POST['name']
-        email = request.POST['email']
-        password = request.POST['password']
-        confirm_password = request.POST['confirm_password']
 
-        if password == confirm_password:
-            if User.objects.filter(username=name).exists():
-                messages.error(request, 'Пользователь с таким именем уже существует')
-            elif User.objects.filter(email=email).exists():
-                messages.error(request, 'Пользователь с таким email уже существует')
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+            data = form.cleaned_data
+            username = data['username']
+            email = data['email']
+            password = data['password']
+            confirm_password = data['confirm_password']
+
+            if password == confirm_password:
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Пользователь с таким именем уже существует')
+                elif User.objects.filter(email=email).exists():
+                    messages.error(request, 'Пользователь с таким email уже существует')
+                else:
+
+                    user = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password=password,
+                        is_active=False
+                    )
+                    user.save()
+
+                    email_subject = 'Giftnet. Verification code.'
+                    verif_password = random.randint(1000, 9999)
+                    email_body = f'Password is {verif_password}'
+                    email = EmailMessage(email_subject, email_body, to=[email])
+                    email.send()
+
+                    salt = uuid.uuid4().hex
+                    hashsolt = HashSalt.objects.create(user=user, salt=salt)
+                    hashsolt.save()
+
+                    hashed_verif_password = hashed(str(verif_password), str(salt))
+
+                    return redirect('verification', username, hashed_verif_password)
             else:
-
-                user = User.objects.create_user(
-                    username=name,
-                    email=email,
-                    password=password,
-                    is_active=False
-                )
-                user.save()
-
-                email_subject = 'Giftnet. Verification code.'
-                verif_password = random.randint(1000, 9999)
-                email_body = f'Password is {verif_password}'
-                email = EmailMessage(email_subject, email_body, to=[email])
-                email.send()
-
-                salt = uuid.uuid4().hex
-                hashsolt = HashSalt.objects.create(user=user, salt=salt)
-                hashsolt.save()
-
-                hashed_verif_password = hashed(str(verif_password), str(salt))
-
-                return redirect('verification', name, hashed_verif_password)
-        else:
-            messages.error(request, 'Пароли не совпадают')
-    return render(request, 'registration.html')
+                messages.error(request, 'Пароли не совпадают')
+    form = RegistrationForm()
+    return render(request, 'registration.html', {'form': form})
 
 
 def authverification(request, name, token):
