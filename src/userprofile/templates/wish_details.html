@@ -22,7 +22,7 @@ Giftnet
                         <div class="swiper-wrapper align-items-center">
 
                             <div class="img">
-                                <img src="{{ wishdata.image.url }}" alt="">
+                                <img src="{{ wish.image.url }}" alt="">
                             </div>
 
                         </div>
@@ -32,17 +32,17 @@ Giftnet
 
                 <div class="col-lg-4">
                     <div class="portfolio-info">
-                        <h3> {{ wishdata.title }} </h3>
+                        <h3> {{ wish.title }} </h3>
                         <ul>
-                            <li><strong>Дата добавления</strong>: {{ wishdata.date }} </li>
-                            <li><strong>Ссылка</strong>: <a href='{{ wishdata.link }}'>ссылка</a></li>
-                            <li><a href="{% url 'editwish' wishdata.id %}">Редактировать</a></li>
-                            <li><a href="{% url 'deletewish' wishdata.id %}">Удалить</a></li>
+                            <li><strong>Дата добавления</strong>: {{ wish.date }} </li>
+                            <li><strong>Ссылка</strong>: <a href='{{ wish.link }}'>ссылка</a></li>
+                            <li><a href="{% url 'editwish' wish.id %}">Редактировать</a></li>
+                            <li><a href="{% url 'deletewish' wish.id %}">Удалить</a></li>
                         </ul>
                     </div>
                     <div class="portfolio-description">
                         <p>
-                            {{ wishdata.description }}
+                            {{ wish.description }}
                         </p>
                     </div>
                 </div>

@@ -6,11 +6,11 @@ from .models import Wish
 
 
 def userprofile(request):
-    wishdata = Wish.objects.filter(user=request.user.id)
+    wishes = Wish.objects.filter(user=request.user.id)
     all_types = list(Wish.objects.filter(user=request.user.id).values('type'))
     set_of_types = set([i['type'] for i in all_types])
     context = {
-        'wishdata': wishdata,
+        'wish': wishes,
         'set_of_types': set_of_types
     }
     return render(request, 'user_profile.html', context)
@@ -78,8 +78,8 @@ def edit_wish(request, id):
 
 
 def wish_details(request, id):
-    wishdata = Wish.objects.get(id=id)
+    wish = Wish.objects.get(id=id)
     context = {
-        'wishdata': wishdata,
+        'wish': wish,
     }
     return render(request, 'wish_details.html', context)

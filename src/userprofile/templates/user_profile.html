@@ -29,15 +29,15 @@ Giftnet
 
 
         <div class="row portfolio-container" data-aos="fade-up">
-            {% for row in wishdata %}
-            <div class="col-lg-4 col-md-6 portfolio-item {{ row.type }}">
+            {% for wish in wishes %}
+            <div class="col-lg-4 col-md-6 portfolio-item {{ wish.type }}">
                 <div class="portfolio-wrap">
-                    <h3> {{ row.title }} </h3>
-                    <img src="{{ row.image.url }}" class="img-fluid" alt="">
+                    <h3> {{ wish.title }} </h3>
+                    <img src="{{ wish.image.url }}" class="img-fluid" alt="">
                     <div class="portfolio-links">
-                        <a href="{{ row.image.url }}" data-gallery="portfolioGallery"
-                           class="portfolio-lightbox" title="{{ row.title }}"><i class="bx bxs-zoom-in"></i></a>
-                        <a href="{% url 'wishdetails' row.id %}" title="Подробнее"><i class="bx bx-link"></i></a>
+                        <a href="{{ wish.image.url }}" data-gallery="portfolioGallery"
+                           class="portfolio-lightbox" title="{{ wish.title }}"><i class="bx bxs-zoom-in"></i></a>
+                        <a href="{% url 'wishdetails' wish.id %}" title="Подробнее"><i class="bx bx-link"></i></a>
                     </div>
                 </div>
             </div>
