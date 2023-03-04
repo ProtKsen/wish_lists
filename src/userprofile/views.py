@@ -10,7 +10,7 @@ def userprofile(request):
     all_types = list(Wish.objects.filter(user=request.user.id).values('type'))
     set_of_types = set([i['type'] for i in all_types])
     context = {
-        'wish': wishes,
+        'wishes': wishes,
         'set_of_types': set_of_types
     }
     return render(request, 'user_profile.html', context)
