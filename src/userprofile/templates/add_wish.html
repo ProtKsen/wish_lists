@@ -1,11 +1,11 @@
 {% extends 'layouts.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <main id="main">
 
     <!-- ======= Contact Section ======= -->
 
-    <section id="contact" class="contact">
         <div class="container">
 
             <div class="row mt-5 justify-content-center" data-aos="fade-up">
@@ -13,33 +13,27 @@
                     <form action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="form-group mt-3">
-                            <input type="text" class="form-control" name="title" id="title" placeholder="Название"
-                                   required>
+                            {{ form.title|as_crispy_field }}
                         </div>
                         <div class="form-group mt-3">
-                            <input type="url" class="form-control" name="link" id="link" placeholder="Ссылка">
+                            {{ form.link|as_crispy_field }}
                         </div>
                         <div class="form-group mt-3">
-                            <input type="text" class="form-control" name="type" id="type" placeholder="Раздел">
+                            {{ form.type|as_crispy_field }}
                         </div>
                         <div class="form-group mt-3">
-                            <textarea class="form-control" name="description" rows="5"
-                                      placeholder="Описание"></textarea>
+                            {{ form.description|as_crispy_field }}
                         </div>
                         <div class="form-group">
-                            <label for="uploadimage">Example file input</label>
-                            <input type="file" class="form-control-file" id="uploadimage" name="uploadimage">
+                            {{ form.image|as_crispy_field }}
                         </div>
                         <div class="text-center">
                             <button class="btn btn-success" type="submit">Добавить</button>
                         </div>
                     </form>
                 </div>
-
             </div>
-
         </div>
-    </section><!-- End Contact Section -->
 
 </main><!-- End #main -->
 {% endblock %}

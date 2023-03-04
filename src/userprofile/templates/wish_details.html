@@ -34,7 +34,7 @@ Giftnet
                     <div class="portfolio-info">
                         <h3> {{ wishdata.title }} </h3>
                         <ul>
-                            <li><strong>Дата добавления</strong>: {{ wishdata.data }} </li>
+                            <li><strong>Дата добавления</strong>: {{ wishdata.date }} </li>
                             <li><strong>Ссылка</strong>: <a href='{{ wishdata.link }}'>ссылка</a></li>
                             <li><a href="{% url 'editwish' wishdata.id %}">Редактировать</a></li>
                             <li><a href="{% url 'deletewish' wishdata.id %}">Удалить</a></li>
