@@ -1,0 +1,25 @@
+{% extends 'layouts.html' %}
+{% load static %}
+
+{% block title %}
+Giftnet
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ======= Profile Section ======= -->
+<section id="portfolio" class="portfolio">
+    <div class="container">
+        <div class="row portfolio-container" data-aos="fade-up">
+            {% for friend in friends %}
+            <div class="col-lg-4 col-md-6 portfolio-item">
+                    <a href="{% url 'friend_profile' friend.id %}">
+                        <h3> {{ friend.username }} </h3>
+                    </a>                   
+            </div>
+            {% endfor %}
+        </div>
+</section><!-- End Profile Section -->
+
+{% endblock %}
