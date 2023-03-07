@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from userprofile.forms import WishForm
@@ -5,6 +6,7 @@ from userprofile.forms import WishForm
 from .models import Wish
 
 
+@login_required
 def userprofile(request):
     wishes = Wish.objects.filter(user=request.user.id)
     all_types = list(Wish.objects.filter(user=request.user.id).values('type'))
@@ -16,6 +18,7 @@ def userprofile(request):
     return render(request, 'user_profile.html', context)
 
 
+@login_required
 def addwish(request):
     if request.method == "POST":
         form = WishForm(request.POST)
@@ -38,12 +41,14 @@ def addwish(request):
     return render(request, 'add_wish.html', context)
 
 
+@login_required
 def delete_wish(request, id: int):
     wish = Wish.objects.get(id=id)
     wish.delete()
     return redirect('userprofile')
 
 
+@login_required
 def edit_wish(request, id: int):
     wish = Wish.objects.get(id=id)
     initial_data = {
@@ -77,6 +82,7 @@ def edit_wish(request, id: int):
         return render(request, 'edit_wish.html', context)
 
 
+@login_required
 def wish_details(request, id: int):
     wish = Wish.objects.get(id=id)
     context = {

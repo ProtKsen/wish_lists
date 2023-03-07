@@ -4,6 +4,7 @@ import uuid
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render
@@ -40,6 +41,7 @@ def authlogin(request):
     return render(request, 'login.html', context)
 
 
+@login_required
 def authlogout(request):
     logout(request)
     return redirect('home')

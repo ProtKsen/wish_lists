@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import redirect, render
@@ -6,6 +7,7 @@ from friends.models import Friend, FriendRequest
 from userprofile.models import Wish
 
 
+@login_required
 def all_friends(request):
     all_friends_objects = Friend.objects.filter(user=request.user)
     context = {
@@ -14,6 +16,7 @@ def all_friends(request):
     return render(request, 'all_friends.html', context=context)
 
 
+@login_required
 def friend_profile(request, id: int):
     wishes = Wish.objects.filter(user_id=id)
     all_types = list(Wish.objects.filter(user_id=id).values('type'))
@@ -25,6 +28,7 @@ def friend_profile(request, id: int):
     return render(request, 'friend_profile.html', context)
 
 
+@login_required
 def all_users(request):
     all_users_objects = User.objects.filter(~Q(username=request.user.username))
     users = []
@@ -38,6 +42,7 @@ def all_users(request):
     return render(request, 'all_users.html', context)
 
 
+@login_required
 def send_request(request, id: int):
     friend = User.objects.get(id=id)
     friend_request = FriendRequest(from_user=request.user, to_user=friend, status='pending')
@@ -45,6 +50,7 @@ def send_request(request, id: int):
     return redirect('all_users')
 
 
+@login_required
 def all_friend_requests(request):
     pending_requests = FriendRequest.objects.filter(to_user=request.user, status='pending')
     context = {
@@ -53,6 +59,7 @@ def all_friend_requests(request):
     return render(request, 'all_friend_requests.html', context)
 
 
+@login_required
 def accept_request(request, id: int):
     friend = User.objects.get(id=id)
     friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
@@ -67,6 +74,7 @@ def accept_request(request, id: int):
     return redirect('userprofile')
 
 
+@login_required
 def reject_request(request, id: int):
     friend = User.objects.get(id=id)
     friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
@@ -75,6 +83,7 @@ def reject_request(request, id: int):
     return redirect('userprofile')
 
 
+@login_required
 def delete_friend(request, id):
     friend = User.objects.get(id=id)
     Friend.objects.get(user=friend, friend=request.user).delete()
