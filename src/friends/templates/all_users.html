@@ -1,0 +1,32 @@
+{% extends 'layouts.html' %}
+{% load static %}
+
+{% block title %}
+Giftnet
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ======= Profile Section ======= -->
+<section id="portfolio" class="portfolio">
+    <div class="container">
+        <div class="row portfolio-container" data-aos="fade-up">
+            {% for user in users %}
+            <div class="col-lg-4 col-md-6 portfolio-item">
+                    <div class="portfolio-info">
+                        <h3> {{ user.name }} </h3>
+                        <ul>
+                            {% if user.is_friend %}
+                            <li><a href="#">Удалить из друзей</a></li>
+                            {% else %}
+                            <li><a href="{% url 'send_request' user.id %}">Добавить в друзья</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>                
+            </div>
+            {% endfor %}
+        </div>
+</section><!-- End Profile Section -->
+
+{% endblock %}
