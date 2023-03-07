@@ -38,13 +38,13 @@ def addwish(request):
     return render(request, 'add_wish.html', context)
 
 
-def delete_wish(request, id):
+def delete_wish(request, id: int):
     wish = Wish.objects.get(id=id)
     wish.delete()
     return redirect('userprofile')
 
 
-def edit_wish(request, id):
+def edit_wish(request, id: int):
     wish = Wish.objects.get(id=id)
     initial_data = {
         'title': wish.title,
@@ -77,7 +77,7 @@ def edit_wish(request, id):
         return render(request, 'edit_wish.html', context)
 
 
-def wish_details(request, id):
+def wish_details(request, id: int):
     wish = Wish.objects.get(id=id)
     context = {
         'wish': wish,

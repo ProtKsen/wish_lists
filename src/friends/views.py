@@ -14,7 +14,7 @@ def all_friends(request):
     return render(request, 'all_friends.html', context=context)
 
 
-def friend_profile(request, id):
+def friend_profile(request, id: int):
     wishes = Wish.objects.filter(user_id=id)
     all_types = list(Wish.objects.filter(user_id=id).values('type'))
     set_of_types = set([i['type'] for i in all_types])
@@ -38,7 +38,7 @@ def all_users(request):
     return render(request, 'all_users.html', context)
 
 
-def send_request(request, id):
+def send_request(request, id: int):
     friend = User.objects.get(id=id)
     friend_request = FriendRequest(from_user=request.user, to_user=friend, status='pending')
     friend_request.save()
@@ -53,7 +53,7 @@ def all_friend_requests(request):
     return render(request, 'all_friend_requests.html', context)
 
 
-def accept_request(request, id):
+def accept_request(request, id: int):
     friend = User.objects.get(id=id)
     friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
     friend_request.status = 'accepted'
@@ -67,7 +67,7 @@ def accept_request(request, id):
     return redirect('userprofile')
 
 
-def reject_request(request):
+def reject_request(request, id: int):
     friend = User.objects.get(id=id)
     friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
     friend_request.status = 'rejected'
