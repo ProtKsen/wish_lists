@@ -12,16 +12,13 @@ Giftnet
 <section id="portfolio" class="portfolio">
     <div class="container">
         <div class="row portfolio-container" data-aos="fade-up">
-            {% for user in users %}
+            {% for request in requests %}
             <div class="col-lg-4 col-md-6 portfolio-item">
                     <div class="portfolio-info">
-                        <h3> {{ user.name }} </h3>
+                        <h3> {{ request.from_user.username }} </h3>
                         <ul>
-                            {% if user.is_friend %}
-                            <li><a href="{% url 'delete_friend' user.id %}">Удалить из друзей</a></li>
-                            {% else %}
-                            <li><a href="{% url 'send_request' user.id %}">Добавить в друзья</a></li>
-                            {% endif %}
+                            <li><a href="{% url 'accept_request' request.from_user.id %}">Добавить в друзья</a></li>
+                            <li><a href="{% url 'reject_request' request.from_user.id  %}">Отклонить заявку</a></li>
                         </ul>
                     </div>                
             </div>

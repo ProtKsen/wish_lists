@@ -45,9 +45,38 @@ def send_request(request, id):
     return redirect('all_users')
 
 
-def accept_request(request):
-    pass
+def all_friend_requests(request):
+    pending_requests = FriendRequest.objects.filter(to_user=request.user, status='pending')
+    context = {
+        'requests': pending_requests
+    }
+    return render(request, 'all_friend_requests.html', context)
+
+
+def accept_request(request, id):
+    friend = User.objects.get(id=id)
+    friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
+    friend_request.status = 'accepted'
+    friend_request.save()
+
+    new_friend = Friend(user=request.user, friend=friend)
+    symm_new_friend = Friend(user=friend, friend=request.user)
+    new_friend.save()
+    symm_new_friend.save()
+
+    return redirect('userprofile')
 
 
 def reject_request(request):
-    pass
+    friend = User.objects.get(id=id)
+    friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
+    friend_request.status = 'rejected'
+    friend_request.save()
+    return redirect('userprofile')
+
+
+def delete_friend(request, id):
+    friend = User.objects.get(id=id)
+    Friend.objects.get(user=friend, friend=request.user).delete()
+    Friend.objects.get(user=request.user, friend=friend).delete()
+    return redirect('userprofile')
