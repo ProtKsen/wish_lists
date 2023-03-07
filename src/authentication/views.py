@@ -18,11 +18,11 @@ from authentication.forms import (
 from authentication.models import HashSalt
 
 
-def hashed(in_line: str, salt: str):
+def hashed(in_line: str, salt: str) -> str:
     return hashlib.sha256(salt.encode() + in_line.encode()).hexdigest()
 
 
-def authentication(request):
+def authlogin(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -36,7 +36,8 @@ def authentication(request):
             else:
                 messages.error(request, 'Неверное имя пользователя или пароль')
     form = LoginForm()
-    return render(request, 'authentication.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'login.html', context)
 
 
 def authlogout(request):
@@ -86,10 +87,11 @@ def authregistration(request):
             else:
                 messages.error(request, 'Пароли не совпадают')
     form = RegistrationForm()
-    return render(request, 'registration.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'registration.html', context)
 
 
-def authverification(request, name, token):
+def authverification(request, name: str, token: str):
     if request.method == "POST":
         form = VerificationCodeForm(request.POST)
         if form.is_valid():
@@ -115,7 +117,8 @@ def authverification(request, name, token):
             else:
                 messages.error(request, 'Введен неверный код.')
     form = VerificationCodeForm()
-    return render(request, 'verification.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'verification.html', context)
 
 
 def reset_password(request):
@@ -140,10 +143,11 @@ def reset_password(request):
 
                 return redirect('reset_pass_verification', user.username, hashed_verification_code)
     form = EmailForm()
-    return render(request, 'reset_password.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'reset_password.html', context)
 
 
-def reset_pass_verification(request, name, token):
+def reset_pass_verification(request, name: str, token: str):
     if request.method == "POST":
         form = VerificationCodeForm(request.POST)
         if form.is_valid():
@@ -155,10 +159,11 @@ def reset_pass_verification(request, name, token):
                 return redirect('change_password', user.username)
             messages.error(request, 'Введен неверный код.')
     form = VerificationCodeForm()
-    return render(request, 'reset_pass_verification.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'reset_pass_verification.html', context)
 
 
-def change_password(request, name):
+def change_password(request, name: str):
     if request.method == "POST":
         form = NewPasswordForm(request.POST)
         if form.is_valid():
@@ -173,8 +178,9 @@ def change_password(request, name):
                 email_body = f'Hello, {user.username}! \n Your password was successfully changed.'
                 email = EmailMessage(email_subject, email_body, to=[user.email])
                 email.send()
-                return redirect('authentication')
+                return redirect('login')
             else:
                 messages.error(request, 'Пароли не совпадают')
     form = NewPasswordForm()
-    return render(request, 'change_password.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'change_password.html', context)
