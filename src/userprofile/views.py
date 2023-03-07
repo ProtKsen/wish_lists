@@ -44,6 +44,7 @@ def addwish(request):
 @login_required
 def delete_wish(request, id: int):
     wish = Wish.objects.get(id=id)
+    wish.image.delete()
     wish.delete()
     return redirect('userprofile')
 
