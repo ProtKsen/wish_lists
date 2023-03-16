@@ -19,7 +19,7 @@ def all_friends(request):
 @login_required
 def friend_profile(request, id: int):
     wishes = Wish.objects.filter(user_id=id)
-    all_types = list(Wish.objects.filter(user_id=id).values('type'))
+    all_types = list(wishes.values('type'))
     set_of_types = set([i['type'] for i in all_types])
     context = {
         'wishes': wishes,
@@ -30,7 +30,9 @@ def friend_profile(request, id: int):
 
 @login_required
 def all_users(request):
-    all_users_objects = User.objects.filter(~Q(username=request.user.username))
+    all_users_objects = User.objects.exclude(
+        Q(username=request.user.username) | Q(is_active=False)
+    )
     users = []
     for object in all_users_objects:
         is_friend = Friend.objects.filter(user=request.user, friend=object).first()
@@ -62,7 +64,11 @@ def all_friend_requests(request):
 @login_required
 def accept_request(request, id: int):
     friend = User.objects.get(id=id)
-    friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
+    friend_request = FriendRequest.objects.get(
+        to_user=request.user,
+        from_user=friend,
+        status='pending'
+    )
     friend_request.status = 'accepted'
     friend_request.save()
 
@@ -77,7 +83,11 @@ def accept_request(request, id: int):
 @login_required
 def reject_request(request, id: int):
     friend = User.objects.get(id=id)
-    friend_request = FriendRequest.objects.get(to_user=request.user, from_user=friend)
+    friend_request = FriendRequest.objects.get(
+        to_user=request.user,
+        from_user=friend,
+        status='pending'
+    )
     friend_request.status = 'rejected'
     friend_request.save()
     return redirect('userprofile')
