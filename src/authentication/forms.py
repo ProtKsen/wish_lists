@@ -35,6 +35,12 @@ class RegistrationForm(forms.Form):
         })
     )
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data['password'] != cleaned_data['confirm_password']:
+            self.add_error('confirm_password', 'Пароли не совпадают')
+
 
 class LoginForm(forms.Form):
 

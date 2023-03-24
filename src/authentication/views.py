@@ -56,39 +56,36 @@ def authregistration(request):
             username = data['username']
             email = data['email']
             password = data['password']
-            confirm_password = data['confirm_password']
 
-            if password == confirm_password:
-                if User.objects.filter(username=username).exists():
-                    messages.error(request, 'Пользователь с таким именем уже существует')
-                elif User.objects.filter(email=email).exists():
-                    messages.error(request, 'Пользователь с таким email уже существует')
-                else:
-
-                    user = User.objects.create_user(
-                        username=username,
-                        email=email,
-                        password=password,
-                        is_active=False
-                    )
-                    user.save()
-
-                    email_subject = 'Giftnet. Verification code.'
-                    verification_code = random.randint(1000, 9999)
-                    email_body = f'Verification code is {verification_code}'
-                    email = EmailMessage(email_subject, email_body, to=[email])
-                    email.send()
-
-                    salt = uuid.uuid4().hex
-                    hashsolt = HashSalt.objects.create(user=user, salt=salt)
-                    hashsolt.save()
-
-                    hashed_verification_code = hashed(str(verification_code), str(salt))
-
-                    return redirect('verification', username, hashed_verification_code)
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Пользователь с таким именем уже существует')
+            elif User.objects.filter(email=email).exists():
+                messages.error(request, 'Пользователь с таким email уже существует')
             else:
-                messages.error(request, 'Пароли не совпадают')
-    form = RegistrationForm()
+
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    is_active=False
+                )
+                user.save()
+
+                email_subject = 'Giftnet. Verification code.'
+                verification_code = random.randint(1000, 9999)
+                email_body = f'Verification code is {verification_code}'
+                email = EmailMessage(email_subject, email_body, to=[email])
+                email.send()
+
+                salt = uuid.uuid4().hex
+                hashsolt = HashSalt.objects.create(user=user, salt=salt)
+                hashsolt.save()
+
+                hashed_verification_code = hashed(str(verification_code), str(salt))
+
+                return redirect('verification', username, hashed_verification_code)
+    else:
+        form = RegistrationForm()
     context = {'form': form}
     return render(request, 'registration.html', context)
 
