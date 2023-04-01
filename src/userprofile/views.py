@@ -1,9 +1,14 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils.datastructures import MultiValueDictKeyError
+from PIL import Image, UnidentifiedImageError
 
 from userprofile.forms import WishForm
 
 from .models import Wish
+
+ALLOWED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg']
 
 
 @login_required
@@ -24,20 +29,34 @@ def addwish(request):
         form = WishForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
+
             wish_data = {}
             for key, val in form_data.items():
                 if val:
                     wish_data[key] = val
-            if 'image' in request.FILES:
-                wish_data['image'] = request.FILES['image']
+
+            try:
+                file = Image.open(request.FILES['file'])
+                if file.format.lower() not in ALLOWED_IMAGE_EXTENSIONS:
+                    raise UnidentifiedImageError
+                wish_data['image'] = request.FILES['file']
+
+            except UnidentifiedImageError:
+                messages.add_message(request, messages.ERROR, 'Неверный формат файла.')
+                form = WishForm(initial=wish_data)
+                context = {'form': form}
+                return render(request, 'add_wish.html', context)
+
+            except MultiValueDictKeyError:
+                pass
+
             wish_data['user'] = request.user
             wish = Wish(**wish_data)
             wish.save()
             return redirect('userprofile')
+
     form = WishForm()
-    context = {
-        'form': form
-    }
+    context = {'form': form}
     return render(request, 'add_wish.html', context)
 
 
@@ -65,12 +84,24 @@ def edit_wish(request, id: int):
         form = WishForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
+
             new_wish_data = {}
             for key, val in form_data.items():
                 if val:
                     new_wish_data[key] = val
-            if 'image' in request.FILES:
-                new_wish_data['image'] = request.FILES['image']
+
+            try:
+                file = Image.open(request.FILES['file'])
+                if file.format.lower() not in ALLOWED_IMAGE_EXTENSIONS:
+                    raise UnidentifiedImageError
+                new_wish_data['image'] = request.FILES['file']
+
+            except UnidentifiedImageError:
+                messages.add_message(request, messages.ERROR, 'Неверный формат файла.')
+                form = WishForm(initial=new_wish_data)
+                context = {'form': form}
+                return render(request, 'edit_wish.html', context)
+
             new_wish_data['user'] = request.user
             wish = Wish.objects.get(id=id)
             for key, value in new_wish_data.items():
@@ -79,9 +110,7 @@ def edit_wish(request, id: int):
             return redirect('userprofile')
     else:
         form = WishForm(initial=initial_data)
-        context = {
-            'form': form
-        }
+        context = {'form': form}
         return render(request, 'edit_wish.html', context)
 
 
