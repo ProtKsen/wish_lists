@@ -18,4 +18,8 @@ class FriendRequest(models.Model):
 
     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='from_user')
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='to_user')
-    status = models.CharField(max_length=8, choices=RequestStatus.choices, default='PENDING')
+    status = models.CharField(
+        max_length=8,
+        choices=RequestStatus.choices,
+        default=RequestStatus.PENDING
+    )

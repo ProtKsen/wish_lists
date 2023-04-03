@@ -19,8 +19,12 @@ Giftnet
                         <ul>
                             {% if user.is_friend %}
                             <li><a href="{% url 'delete_friend' user.id %}">Удалить из друзей</a></li>
+                            {% elif user.status == 'request_received' %}
+                                Получена заявка на добавление в друзья
+                            {% elif user.status == 'request_sent' %}
+                                Запрос на добавление в друзья отправлен
                             {% else %}
-                            <li><a href="{% url 'send_request' user.id %}">Добавить в друзья</a></li>
+                                <li><a href="{% url 'send_request' user.id %}">Добавить в друзья</a></li>
                             {% endif %}
                         </ul>
                     </div>                
