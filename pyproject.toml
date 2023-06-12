@@ -11,6 +11,7 @@ python-dotenv = "^1.0.0"
 Pillow = "^9.4.0"
 django-crispy-forms = "^2.0"
 crispy-bootstrap5 = "^0.7"
+psycopg2-binary = "^2.9.6"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.961"

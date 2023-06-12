@@ -83,13 +83,21 @@ WSGI_APPLICATION = 'wish_lists.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': str(os.getenv("DATABASE_NAME")),
+    #     'USER': str(os.getenv("DATABASE_USER")),
+    #     'PASSWORD': str(os.getenv("DATABASE_PASSWORD")),
+    #     'HOST': str(os.getenv("DATABASE_HOST")),
+    #     'PORT': 3306,
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(os.getenv("DATABASE_NAME")),
-        'USER': str(os.getenv("DATABASE_USER")),
-        'PASSWORD': str(os.getenv("DATABASE_PASSWORD")),
-        'HOST': str(os.getenv("DATABASE_HOST")),
-        'PORT': 3306,
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.environ["POSTGRES_DB"],
+        "USER": os.environ["POSTGRES_USER"],
+        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+        "HOST": os.environ["POSTGRES_HOST"],
+        "PORT": os.environ["POSTGRES_PORT"],
     }
 }
 
