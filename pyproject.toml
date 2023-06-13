@@ -12,6 +12,8 @@ Pillow = "^9.4.0"
 django-crispy-forms = "^2.0"
 crispy-bootstrap5 = "^0.7"
 psycopg2-binary = "^2.9.6"
+pytest = "^7.3.2"
+pytest-django = "^4.5.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.961"
@@ -20,3 +22,31 @@ flake8 = "^4.0.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+python_files = ['tests.py', 'test_*.py', '*_tests.py']
+DJANGO_SETTINGS_MODULE = 'src.wish_lists.settings'
+pythonpath = '. src'
+
+[tool.black]
+line-length = 99
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[flake8]
+line-length = 99
+
+[tool.djlint]
+ignore="D018,H006"
