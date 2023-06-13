@@ -2,7 +2,7 @@ This application allows users to create a collection of things they would like t
 
 home page|login|profile
 :-:|:-:|:-:
-![Alt-текст](https://github.com/ProtKsen/wish_lists/blob/main/screenshots/background.png?raw=true) | ![Alt-текст](https://github.com/ProtKsen/wish_lists/blob/main/screenshots/auth.png?raw=true) | ![Alt-текст](https://github.com/ProtKsen/wish_lists/blob/main/screenshots/example.png?raw=true) 
+![Alt-текст](https://github.com/ProtKsen/wish_lists/blob/main/screenshots/background.png?raw=true) | ![Alt-текст](https://github.com/ProtKsen/wish_lists/blob/main/screenshots/auth.png?raw=true) | ![Alt-текст](https://github.com/ProtKsen/wish_lists/blob/main/screenshots/example.png?raw=true)
 
 ## Technical stack
 Django, Bootstrap

@@ -28,52 +28,47 @@ def authlogin(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            username = data['username']
-            password = data['password']
+            username = data["username"]
+            password = data["password"]
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
-                return redirect('userprofile')
+                return redirect("userprofile")
             else:
-                messages.error(request, 'Неверное имя пользователя или пароль')
+                messages.error(request, "Неверное имя пользователя или пароль")
     form = LoginForm()
-    context = {'form': form}
-    return render(request, 'login.html', context)
+    context = {"form": form}
+    return render(request, "login.html", context)
 
 
 @login_required
 def authlogout(request):
     logout(request)
-    return redirect('home')
+    return redirect("home")
 
 
 def authregistration(request):
     if request.method == "POST":
-
         form = RegistrationForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            username = data['username']
-            email = data['email']
-            password = data['password']
+            username = data["username"]
+            email = data["email"]
+            password = data["password"]
 
             if User.objects.filter(username=username).exists():
-                messages.error(request, 'Пользователь с таким именем уже существует')
+                messages.error(request, "Пользователь с таким именем уже существует")
             elif User.objects.filter(email=email).exists():
-                messages.error(request, 'Пользователь с таким email уже существует')
+                messages.error(request, "Пользователь с таким email уже существует")
             else:
-
                 user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    is_active=False
+                    username=username, email=email, password=password, is_active=False
                 )
                 user.save()
 
-                email_subject = 'Giftnet. Verification code.'
+                email_subject = "Giftnet. Verification code."
                 verification_code = random.randint(1000, 9999)
-                email_body = f'Verification code is {verification_code}'
+                email_body = f"Verification code is {verification_code}"
                 email = EmailMessage(email_subject, email_body, to=[email])
                 email.send()
 
@@ -83,11 +78,11 @@ def authregistration(request):
 
                 hashed_verification_code = hashed(str(verification_code), str(salt))
 
-                return redirect('verification', username, hashed_verification_code)
+                return redirect("verification", username, hashed_verification_code)
     else:
         form = RegistrationForm()
-    context = {'form': form}
-    return render(request, 'registration.html', context)
+    context = {"form": form}
+    return render(request, "registration.html", context)
 
 
 def authverification(request, name: str, token: str):
@@ -97,27 +92,26 @@ def authverification(request, name: str, token: str):
             data = form.cleaned_data
             user = User.objects.get(username=name)
             salt = HashSalt.objects.get(user=user).salt
-            verification_code = data['verification_code']
+            verification_code = data["verification_code"]
             hashed_verification_code = hashed(str(verification_code), str(salt))
 
             if hashed_verification_code == token:
-
                 user.is_active = True
                 user.save()
 
-                email_subject = 'Giftnet. Registration completed successfully.'
-                email_body = f'Hello, {user.username}! \n Welcome to Giftnet!'
+                email_subject = "Giftnet. Registration completed successfully."
+                email_body = f"Hello, {user.username}! \n Welcome to Giftnet!"
                 email = EmailMessage(email_subject, email_body, to=[user.email])
                 email.send()
 
                 login(request, user)
 
-                return redirect('userprofile')
+                return redirect("userprofile")
             else:
-                messages.error(request, 'Введен неверный код.')
+                messages.error(request, "Введен неверный код.")
     form = VerificationCodeForm()
-    context = {'form': form}
-    return render(request, 'verification.html', context)
+    context = {"form": form}
+    return render(request, "verification.html", context)
 
 
 def reset_password(request):
@@ -125,14 +119,14 @@ def reset_password(request):
         form = EmailForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            email = data['email']
+            email = data["email"]
             if not User.objects.filter(email=email).exists():
-                messages.error(request, 'Пользователя с таким email не существует')
+                messages.error(request, "Пользователя с таким email не существует")
             else:
                 user = User.objects.get(email=email)
-                email_subject = 'Giftnet. Verification code.'
+                email_subject = "Giftnet. Verification code."
                 verification_code = random.randint(1000, 9999)
-                email_body = f'Password is {verification_code}'
+                email_body = f"Password is {verification_code}"
                 email = EmailMessage(email_subject, email_body, to=[email])
                 email.send()
 
@@ -140,10 +134,10 @@ def reset_password(request):
 
                 hashed_verification_code = hashed(str(verification_code), str(salt))
 
-                return redirect('reset_pass_verification', user.username, hashed_verification_code)
+                return redirect("reset_pass_verification", user.username, hashed_verification_code)
     form = EmailForm()
-    context = {'form': form}
-    return render(request, 'reset_password.html', context)
+    context = {"form": form}
+    return render(request, "reset_password.html", context)
 
 
 def reset_pass_verification(request, name: str, token: str):
@@ -151,15 +145,15 @@ def reset_pass_verification(request, name: str, token: str):
         form = VerificationCodeForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            verification_code = data['verification_code']
+            verification_code = data["verification_code"]
             user = User.objects.get(username=name)
             salt = HashSalt.objects.get(user=user)
             if hashed(str(verification_code), str(salt)) == token:
-                return redirect('change_password', user.username)
-            messages.error(request, 'Введен неверный код.')
+                return redirect("change_password", user.username)
+            messages.error(request, "Введен неверный код.")
     form = VerificationCodeForm()
-    context = {'form': form}
-    return render(request, 'reset_pass_verification.html', context)
+    context = {"form": form}
+    return render(request, "reset_pass_verification.html", context)
 
 
 def change_password(request, name: str):
@@ -167,19 +161,19 @@ def change_password(request, name: str):
         form = NewPasswordForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            password = data['password']
-            confirm_password = data['confirm_password']
+            password = data["password"]
+            confirm_password = data["confirm_password"]
             if password == confirm_password:
                 user = User.objects.get(username=name)
                 user.set_password(password)
                 user.save()
-                email_subject = 'Giftnet. Password was changed.'
-                email_body = f'Hello, {user.username}! \n Your password was successfully changed.'
+                email_subject = "Giftnet. Password was changed."
+                email_body = f"Hello, {user.username}! \n Your password was successfully changed."
                 email = EmailMessage(email_subject, email_body, to=[user.email])
                 email.send()
-                return redirect('login')
+                return redirect("login")
             else:
-                messages.error(request, 'Пароли не совпадают')
+                messages.error(request, "Пароли не совпадают")
     form = NewPasswordForm()
-    context = {'form': form}
-    return render(request, 'change_password.html', context)
+    context = {"form": form}
+    return render(request, "change_password.html", context)

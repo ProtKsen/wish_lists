@@ -1,10 +1,9 @@
-{% extends 'layouts.html' %}
+{% extends "layouts.html" %}
 {% load static %}
 
 {% block title %}
 Giftnet
-{% endblock %}
-
+{% endblock title %}
 
 {% block content %}
 
@@ -27,10 +26,11 @@ Giftnet
                                 <li><a href="{% url 'send_request' user.id %}">Добавить в друзья</a></li>
                             {% endif %}
                         </ul>
-                    </div>                
+                    </div>
             </div>
             {% endfor %}
         </div>
+    </div>
 </section><!-- End Profile Section -->
 
-{% endblock %}
+{% endblock content %}

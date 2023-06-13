@@ -1,10 +1,9 @@
-{% extends 'layouts.html' %}
+{% extends "layouts.html" %}
 {% load static %}
 
 {% block title %}
 Giftnet
-{% endblock %}
-
+{% endblock title %}
 
 {% block content %}
 <!-- ======= Profile Section ======= -->
@@ -27,7 +26,6 @@ Giftnet
             </div>
         </div>
 
-
         <div class="row portfolio-container" data-aos="fade-up">
             {% for wish in wishes %}
             <div class="col-lg-4 col-md-6 portfolio-item {{ wish.type }}">
@@ -43,6 +41,7 @@ Giftnet
             </div>
             {% endfor %}
         </div>
+    </div>
 
 </section><!-- End Profile Section -->
-{% endblock %}
+{% endblock content %}

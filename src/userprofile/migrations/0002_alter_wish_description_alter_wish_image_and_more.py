@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("userprofile", "0001_initial"),
     ]
@@ -24,9 +23,7 @@ class Migration(migrations.Migration):
                 default="img/wish_default.jpg",
                 upload_to="img/",
                 validators=[
-                    django.core.validators.FileExtensionValidator(
-                        [".png", ".jpg", ".jpeg"]
-                    )
+                    django.core.validators.FileExtensionValidator([".png", ".jpg", ".jpeg"])
                 ],
             ),
         ),

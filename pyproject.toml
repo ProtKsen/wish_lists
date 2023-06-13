@@ -14,7 +14,9 @@ crispy-bootstrap5 = "^0.7"
 psycopg2-binary = "^2.9.6"
 pytest = "^7.3.2"
 pytest-django = "^4.5.2"
-pre-commit = "^3.3.2"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.2.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.961"
@@ -46,8 +48,5 @@ exclude = '''
 )/
 '''
 
-[flake8]
-line-length = 99
-
 [tool.djlint]
-ignore="D018,H006"
+ignore="D018,H006,H021,H023"

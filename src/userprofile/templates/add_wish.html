@@ -1,4 +1,4 @@
-{% extends 'layouts.html' %}
+{% extends "layouts.html" %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -19,7 +19,7 @@
                     {{ message }}
                 </div>
                 {% endfor %}
-                
+
                     <form action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="form-group mt-3">
@@ -46,4 +46,4 @@
         </div>
 
 </main><!-- End #main -->
-{% endblock %}
+{% endblock content %}

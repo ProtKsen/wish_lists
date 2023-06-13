@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("userprofile", "0002_alter_wish_description_alter_wish_image_and_more"),
     ]

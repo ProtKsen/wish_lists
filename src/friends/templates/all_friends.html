@@ -1,10 +1,9 @@
-{% extends 'layouts.html' %}
+{% extends "layouts.html" %}
 {% load static %}
 
 {% block title %}
 Giftnet
-{% endblock %}
-
+{% endblock title %}
 
 {% block content %}
 
@@ -16,10 +15,11 @@ Giftnet
             <div class="col-lg-4 col-md-6 portfolio-item">
                     <a href="{% url 'friend_profile' friend.id %}">
                         <h3> {{ friend.username }} </h3>
-                    </a>                   
+                    </a>
             </div>
             {% endfor %}
         </div>
+    </div>
 </section><!-- End Profile Section -->
 
-{% endblock %}
+{% endblock content %}

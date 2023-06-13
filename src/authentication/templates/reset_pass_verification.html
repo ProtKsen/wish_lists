@@ -1,8 +1,8 @@
-{% extends 'layouts.html' %}
+{% extends "layouts.html" %}
 
 {% block title %}
 Giftnet
-{% endblock %}
+{% endblock title %}
 {% load static %}
 {% load crispy_forms_tags %}
 
@@ -26,7 +26,7 @@ Giftnet
                     {{ message }}
                 </div>
                 {% endfor %}
-                
+
                 <form action="" method="post">
                     {% csrf_token %}
 
@@ -36,10 +36,7 @@ Giftnet
                     </div>
 
                     <div class="text-center text-lg-start mt-4 pt-2">
-                        <button type="submit" class="btn btn-primary"
-                                style="padding-left: 2.5rem; padding-right: 2.5rem;">Задать новый пароль
-                        </button>
-
+                        <button type="submit" class="btn btn-primary">Задать новый пароль</button>
                         <p class="small fw-bold mt-2 pt-1 mb-0">У Вас еще нет аккаунта? <a
                                 href="{% url 'registration' %}"
                                 class="link">Регистрация</a>
@@ -51,4 +48,4 @@ Giftnet
         </div>
     </div>
 </section>
-{% endblock %}
+{% endblock content %}
