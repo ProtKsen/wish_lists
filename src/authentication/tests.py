@@ -1,5 +1,6 @@
 import pytest
 from django.contrib import auth
+from django.contrib.auth.models import User
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 
@@ -82,3 +83,78 @@ def test_authlogout_get_request_from_unauthorized_user_redirect(client):
     response = client.get(url, follow=True)
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
+
+
+"""
+Tests for authregistration
+"""
+
+
+def test_authregistration_get_request_from_unauthorized_user_successed(client):
+    url = reverse("registration")
+    response = client.get(url)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "registration.html")
+
+
+@pytest.mark.django_db
+def test_authregistration_get_request_from_authorized_user_redirect(
+    client, create_user, login_user
+):
+    url = reverse("registration")
+    response = client.get(url, follow=True)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "home.html")
+
+
+@pytest.mark.django_db
+def test_authregistration_post_request_valid_new_user_redirect(client):
+    url = reverse("registration")
+    form_data = {
+        "username": "NewUser",
+        "email": "new@example.com",
+        "password": "NewPassword",
+        "confirm_password": "NewPassword",
+    }
+    response = client.post(url, data=form_data, follow=True)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "verification.html")
+
+    user = User.objects.get(username="NewUser")
+    assert user.is_active is False
+
+
+@pytest.mark.django_db
+def test_authregistration_post_request_not_valid_username_show_error_massage(client, create_user):
+    url = reverse("registration")
+    form_data = {
+        "username": "TestUser",
+        "email": "new@example.com",
+        "password": "NewPassword",
+        "confirm_password": "NewPassword",
+    }
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "registration.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Пользователь с таким именем уже существует"
+
+
+@pytest.mark.django_db
+def test_authregistration_post_request_not_valid_email_show_error_massage(client, create_user):
+    url = reverse("registration")
+    form_data = {
+        "username": "NewUser",
+        "email": "test@test.com",
+        "password": "NewPassword",
+        "confirm_password": "NewPassword",
+    }
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "registration.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Пользователь с таким email уже существует"
