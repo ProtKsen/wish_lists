@@ -158,3 +158,49 @@ def test_authregistration_post_request_not_valid_email_show_error_massage(client
     assertTemplateUsed(response, "registration.html")
     assert len(messages) == 1
     assert str(messages[0]) == "Пользователь с таким email уже существует"
+
+
+"""
+Tests for authverification
+"""
+
+
+def test_authverification_get_request_successed(client):
+    url = reverse("verification", kwargs={"name": "name", "token": "token"})
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_authverification_post_request_not_existed_user_redirect(client, create_user):
+    url = reverse("verification", kwargs={"name": "NewUser", "token": "token"})
+    form_data = {"verification_code": 1234}
+    response = client.post(url, data=form_data, follow=True)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "home.html")
+
+
+@pytest.mark.django_db
+def test_authverification_post_request_not_valid_type_of_code_show_error_message(
+    client, create_user
+):
+    url = reverse("verification", kwargs={"name": "TestUser", "token": "token"})
+    form_data = {"verification_code": "not_valid_code"}
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+    assert response.status_code == 200
+    assertTemplateUsed(response, "verification.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Код должен содержать 4 цифры."
+
+
+@pytest.mark.django_db
+def test_authverification_post_request_not_valid_code_show_error_message(client, create_user):
+    url = reverse("verification", kwargs={"name": "TestUser", "token": "token"})
+    form_data = {"verification_code": 1234}
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+    assert response.status_code == 200
+    assertTemplateUsed(response, "verification.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Введен неверный код."
