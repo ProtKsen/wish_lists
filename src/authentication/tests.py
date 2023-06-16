@@ -204,3 +204,35 @@ def test_authverification_post_request_not_valid_code_show_error_message(client,
     assertTemplateUsed(response, "verification.html")
     assert len(messages) == 1
     assert str(messages[0]) == "Введен неверный код."
+
+
+"""
+Tests for reset_password
+"""
+
+
+def test_reset_password_get_request_successed(client):
+    url = reverse("reset_password")
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_reset_password_post_request_valid_email_redirect(client, create_user):
+    url = reverse("reset_password")
+    form_data = {"email": "test@test.com"}
+    response = client.post(url, data=form_data, follow=True)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_pass_verification.html")
+
+
+@pytest.mark.django_db
+def test_reset_password_post_request_not_existed_email_redirect(client, create_user):
+    url = reverse("reset_password")
+    form_data = {"email": "not_existed@test.com"}
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_password.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Пользователя с таким email не существует"
