@@ -236,3 +236,60 @@ def test_reset_password_post_request_not_existed_email_redirect(client, create_u
     assertTemplateUsed(response, "reset_password.html")
     assert len(messages) == 1
     assert str(messages[0]) == "Пользователя с таким email не существует"
+
+
+"""
+Tests for reset_pass_verification
+"""
+
+
+def test_reset_pass_verification_get_request_from_unauthorized_user_successed(client):
+    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
+    response = client.get(url)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_pass_verification.html")
+
+
+@pytest.mark.django_db
+def test_reset_pass_verification_get_request_from_authorized_user_successed(
+    client, create_user, login_user
+):
+    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
+    response = client.get(url)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_pass_verification.html")
+
+
+@pytest.mark.django_db
+def test_reset_pass_verification_post_request_not_existed_user_redirect(client):
+    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
+    form_data = {"verification_code": 1234}
+    response = client.post(url, data=form_data, follow=True)
+    assert response.status_code == 200
+    assertTemplateUsed(response, "home.html")
+
+
+@pytest.mark.django_db
+def test_reset_pass_verification_post_request_not_valid_type_code_show_error_message(client):
+    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
+    form_data = {"verification_code": "string"}
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_pass_verification.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Код должен содержать 4 цифры."
+
+
+@pytest.mark.django_db
+def test_reset_pass_verification_post_request_not_valid_code_show_error_message(
+    client, create_user
+):
+    url = reverse("reset_pass_verification", kwargs={"name": "TestUser", "token": "token"})
+    form_data = {"verification_code": 1234}
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_pass_verification.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Введен неверный код."
