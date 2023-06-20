@@ -1,5 +1,7 @@
 from django import forms
 
+import authentication.message_text
+
 
 class RegistrationForm(forms.Form):
     username = forms.CharField(
@@ -32,7 +34,10 @@ class RegistrationForm(forms.Form):
         cleaned_data = super().clean()
 
         if cleaned_data["password"] != cleaned_data["confirm_password"]:
-            self.add_error("confirm_password", "Пароли не совпадают")
+            self.add_error(
+                "confirm_password",
+                authentication.message_text.not_equals_password_confirm_password,
+            )
 
 
 class LoginForm(forms.Form):
