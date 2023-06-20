@@ -12,6 +12,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
+import authentication.message_text
 from authentication.forms import (
     EmailForm,
     LoginForm,
@@ -41,9 +42,9 @@ def authlogin(request):
                 login(request, user)
                 return redirect("userprofile")
             else:
-                messages.error(request, "Неверное имя пользователя или пароль")
+                messages.error(request, authentication.message_text.not_valid_username_or_password)
         else:
-            messages.error(request, "Введены некорректные данные")
+            messages.error(request, authentication.message_text.not_valid_data)
 
     form = LoginForm()
     context = {"form": form}
@@ -69,9 +70,9 @@ def authregistration(request):
             password = data["password"]
 
             if User.objects.filter(username=username).exists():
-                messages.error(request, "Пользователь с таким именем уже существует")
+                messages.error(request, authentication.message_text.username_is_used)
             elif User.objects.filter(email=email).exists():
-                messages.error(request, "Пользователь с таким email уже существует")
+                messages.error(request, authentication.message_text.email_is_used)
             else:
                 user = User.objects.create_user(
                     username=username, email=email, password=password, is_active=False
@@ -130,9 +131,9 @@ def authverification(request, name: str, token: str):
 
                 return redirect("userprofile")
             else:
-                messages.error(request, "Введен неверный код.")
+                messages.error(request, authentication.message_text.not_valid_verification_code)
         else:
-            messages.error(request, "Код должен содержать 4 цифры.")
+            messages.error(request, authentication.message_text.not_valid_verification_code)
 
     form = VerificationCodeForm()
     context = {"form": form}
@@ -147,7 +148,7 @@ def reset_password(request):
             data = form.cleaned_data
             email = data["email"]
             if not User.objects.filter(email=email).exists():
-                messages.error(request, "Пользователя с таким email не существует")
+                messages.error(request, authentication.message_text.email_is_not_used)
             else:
                 user = User.objects.get(email=email)
                 email_subject = "Giftnet. Verification code."
@@ -193,12 +194,14 @@ def reset_pass_verification(request, name: str, token: str):
                     email = EmailMessage(email_subject, email_body, to=[user.email])
                     email.send()
                     return redirect("login")
-                messages.error(request, "Введен неверный проверочный код")
+                messages.error(request, authentication.message_text.not_valid_verification_code)
             else:
-                messages.error(request, "Пароли не совпадают")
+                messages.error(
+                    request, authentication.message_text.not_equals_password_confirm_password
+                )
 
         else:
-            messages.error(request, "Код должен содержать 4 цифры.")
+            messages.error(request, authentication.message_text.not_valid_verification_code)
 
     form = VerificationCodeForm()
     context = {"form": form}

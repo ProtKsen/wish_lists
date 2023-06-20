@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 
+import authentication.message_text
+
 """
 Tests for login
 """
@@ -50,7 +52,7 @@ def test_authlogin_post_request_not_valid_username_show_error_message(client, cr
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Неверное имя пользователя или пароль"
+    assert str(messages[0]) == authentication.message_text.not_valid_username_or_password
 
 
 @pytest.mark.django_db
@@ -65,7 +67,7 @@ def test_authlogin_post_request_not_valid_form_show_error_message(client, create
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Введены некорректные данные"
+    assert str(messages[0]) == authentication.message_text.not_valid_data
 
 
 @pytest.mark.django_db
@@ -80,7 +82,7 @@ def test_authlogin_post_request_not_valid_password_show_error_message(client, cr
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Неверное имя пользователя или пароль"
+    assert str(messages[0]) == authentication.message_text.not_valid_username_or_password
 
 
 """
@@ -163,7 +165,7 @@ def test_authregistration_post_request_not_valid_username_show_error_massage(cli
     assert response.status_code == 200
     assertTemplateUsed(response, "registration.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Пользователь с таким именем уже существует"
+    assert str(messages[0]) == authentication.message_text.username_is_used
 
 
 @pytest.mark.django_db
@@ -181,7 +183,7 @@ def test_authregistration_post_request_not_valid_email_show_error_massage(client
     assert response.status_code == 200
     assertTemplateUsed(response, "registration.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Пользователь с таким email уже существует"
+    assert str(messages[0]) == authentication.message_text.email_is_used
 
 
 """
@@ -239,7 +241,7 @@ def test_authverification_post_request_not_valid_type_of_code_show_error_message
     assert response.status_code == 200
     assertTemplateUsed(response, "verification.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Код должен содержать 4 цифры."
+    assert str(messages[0]) == authentication.message_text.not_valid_verification_code
 
 
 @pytest.mark.django_db
@@ -254,7 +256,7 @@ def test_authverification_post_request_not_valid_code_show_error_message(
     assert response.status_code == 200
     assertTemplateUsed(response, "verification.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Введен неверный код."
+    assert str(messages[0]) == authentication.message_text.not_valid_verification_code
 
 
 """
@@ -289,7 +291,7 @@ def test_reset_password_post_request_not_existed_email_redirect(client, create_u
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_password.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Пользователя с таким email не существует"
+    assert str(messages[0]) == authentication.message_text.email_is_not_used
 
 
 """
@@ -338,7 +340,7 @@ def test_reset_pass_verification_post_request_not_confirmed_password_show_error_
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Пароли не совпадают"
+    assert str(messages[0]) == authentication.message_text.not_equals_password_confirm_password
 
 
 @pytest.mark.django_db
@@ -353,7 +355,7 @@ def test_reset_pass_verification_post_request_not_valid_type_code_show_error_mes
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Код должен содержать 4 цифры."
+    assert str(messages[0]) == authentication.message_text.not_valid_verification_code
 
 
 @pytest.mark.django_db
@@ -368,4 +370,4 @@ def test_reset_pass_verification_post_request_not_valid_code_show_error_message(
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Введен неверный проверочный код"
+    assert str(messages[0]) == authentication.message_text.not_valid_verification_code
