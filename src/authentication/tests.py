@@ -17,11 +17,11 @@ def test_authlogin_get_request_from_unauthorized_user_successed(client):
 
 
 @pytest.mark.django_db
-def test_authlogin_get_request_from_authorized_user_redirect(client, create_user, login_user):
+def test_authlogin_get_request_from_authorized_user_successed(client, create_user, login_user):
     url = reverse("login")
-    response = client.get(url, follow=True)
+    response = client.get(url)
     assert response.status_code == 200
-    assertTemplateUsed(response, "home.html")
+    assertTemplateUsed(response, "login.html")
 
 
 @pytest.mark.django_db
@@ -46,8 +46,26 @@ def test_authlogin_post_request_not_valid_username_show_error_message(client, cr
         "password": "TestPassword",
     }
     response = client.post(url, data=form_data)
+    messages = list(response.context["messages"])
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Неверное имя пользователя или пароль"
+
+
+@pytest.mark.django_db
+def test_authlogin_post_request_not_valid_form_show_error_message(client, create_user):
+    url = reverse("login")
+    form_data = {
+        "not_valid_field": "name",
+        "password": "TestPassword",
+    }
+    response = client.post(url, data=form_data)
+    messages = list(response.context["messages"])
+    assert response.status_code == 200
+    assertTemplateUsed(response, "login.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Введены некорректные данные"
 
 
 @pytest.mark.django_db
@@ -58,8 +76,11 @@ def test_authlogin_post_request_not_valid_password_show_error_message(client, cr
         "password": "WrongPassword",
     }
     response = client.post(url, data=form_data)
+    messages = list(response.context["messages"])
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Неверное имя пользователя или пароль"
 
 
 """
@@ -81,6 +102,7 @@ def test_authlogout_get_request_from_authorized_user_successed(client, create_us
 def test_authlogout_get_request_from_unauthorized_user_redirect(client):
     url = reverse("logout")
     response = client.get(url, follow=True)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "login.html")
 
@@ -93,6 +115,7 @@ Tests for authregistration
 def test_authregistration_get_request_from_unauthorized_user_successed(client):
     url = reverse("registration")
     response = client.get(url)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "registration.html")
 
@@ -103,6 +126,7 @@ def test_authregistration_get_request_from_authorized_user_redirect(
 ):
     url = reverse("registration")
     response = client.get(url, follow=True)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "home.html")
 
@@ -117,10 +141,10 @@ def test_authregistration_post_request_valid_new_user_redirect(client):
         "confirm_password": "NewPassword",
     }
     response = client.post(url, data=form_data, follow=True)
+    user = User.objects.get(username="NewUser")
+
     assert response.status_code == 200
     assertTemplateUsed(response, "verification.html")
-
-    user = User.objects.get(username="NewUser")
     assert user.is_active is False
 
 
@@ -165,29 +189,53 @@ Tests for authverification
 """
 
 
-def test_authverification_get_request_successed(client):
-    url = reverse("verification", kwargs={"name": "name", "token": "token"})
+@pytest.mark.django_db
+def test_authverification_get_request_not_existed_user_failed(client, create_user):
+    url = reverse("verification", kwargs={"name": "NewUser", "token": "token"})
     response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_authverification_get_request_active_user_failed(client, create_user):
+    url = reverse("verification", kwargs={"name": "TestUser", "token": "token"})
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_authverification_get_request_from_unauthorized_user_successed(client, create_user):
+    user = User.objects.get(username="TestUser")
+    user.is_active = False
+    user.save()
+    url = reverse("verification", kwargs={"name": "TestUser", "token": "token"})
+    response = client.get(url)
+
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_authverification_post_request_not_existed_user_redirect(client, create_user):
-    url = reverse("verification", kwargs={"name": "NewUser", "token": "token"})
-    form_data = {"verification_code": 1234}
-    response = client.post(url, data=form_data, follow=True)
+def test_authverification_get_request_from_authorized_user_redirect(
+    client, create_user, login_user, create_not_active_user
+):
+    url = reverse("verification", kwargs={"name": "NotActiveUser", "token": "token"})
+    response = client.get(url, follow=True)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "home.html")
 
 
 @pytest.mark.django_db
 def test_authverification_post_request_not_valid_type_of_code_show_error_message(
-    client, create_user
+    client, create_not_active_user
 ):
-    url = reverse("verification", kwargs={"name": "TestUser", "token": "token"})
+    url = reverse("verification", kwargs={"name": "NotActiveUser", "token": "token"})
     form_data = {"verification_code": "not_valid_code"}
     response = client.post(url, data=form_data, follow=True)
     messages = list(response.context["messages"])
+
     assert response.status_code == 200
     assertTemplateUsed(response, "verification.html")
     assert len(messages) == 1
@@ -195,11 +243,14 @@ def test_authverification_post_request_not_valid_type_of_code_show_error_message
 
 
 @pytest.mark.django_db
-def test_authverification_post_request_not_valid_code_show_error_message(client, create_user):
-    url = reverse("verification", kwargs={"name": "TestUser", "token": "token"})
+def test_authverification_post_request_not_valid_code_show_error_message(
+    client, create_not_active_user
+):
+    url = reverse("verification", kwargs={"name": "NotActiveUser", "token": "token"})
     form_data = {"verification_code": 1234}
     response = client.post(url, data=form_data, follow=True)
     messages = list(response.context["messages"])
+
     assert response.status_code == 200
     assertTemplateUsed(response, "verification.html")
     assert len(messages) == 1
@@ -214,6 +265,7 @@ Tests for reset_password
 def test_reset_password_get_request_successed(client):
     url = reverse("reset_password")
     response = client.get(url)
+
     assert response.status_code == 200
 
 
@@ -222,6 +274,7 @@ def test_reset_password_post_request_valid_email_redirect(client, create_user):
     url = reverse("reset_password")
     form_data = {"email": "test@test.com"}
     response = client.post(url, data=form_data, follow=True)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
 
@@ -232,6 +285,7 @@ def test_reset_password_post_request_not_existed_email_redirect(client, create_u
     form_data = {"email": "not_existed@test.com"}
     response = client.post(url, data=form_data, follow=True)
     messages = list(response.context["messages"])
+
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_password.html")
     assert len(messages) == 1
@@ -243,9 +297,11 @@ Tests for reset_pass_verification
 """
 
 
-def test_reset_pass_verification_get_request_from_unauthorized_user_successed(client):
-    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
+@pytest.mark.django_db
+def test_reset_pass_verification_get_request_from_unauthorized_user_successed(client, create_user):
+    url = reverse("reset_pass_verification", kwargs={"name": "TestUser", "token": "token"})
     response = client.get(url)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
 
@@ -254,27 +310,46 @@ def test_reset_pass_verification_get_request_from_unauthorized_user_successed(cl
 def test_reset_pass_verification_get_request_from_authorized_user_successed(
     client, create_user, login_user
 ):
-    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
+    url = reverse("reset_pass_verification", kwargs={"name": "TestUser", "token": "token"})
     response = client.get(url)
+
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
 
 
 @pytest.mark.django_db
-def test_reset_pass_verification_post_request_not_existed_user_redirect(client):
-    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
-    form_data = {"verification_code": 1234}
-    response = client.post(url, data=form_data, follow=True)
-    assert response.status_code == 200
-    assertTemplateUsed(response, "home.html")
+def test_reset_pass_verification_post_request_not_existed_user_failed(client):
+    url = reverse("reset_pass_verification", kwargs={"name": "not_existed_user", "token": "token"})
+    form_data = {"verification_code": 1234, "password": "pass", "confirm_password": "pass"}
+    response = client.post(url, data=form_data)
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_reset_pass_verification_post_request_not_valid_type_code_show_error_message(client):
-    url = reverse("reset_pass_verification", kwargs={"name": "name", "token": "token"})
-    form_data = {"verification_code": "string"}
+def test_reset_pass_verification_post_request_not_confirmed_password_show_error_message(
+    client, create_user
+):
+    url = reverse("reset_pass_verification", kwargs={"name": "TestUser", "token": "token"})
+    form_data = {"verification_code": 1234, "password": "pass", "confirm_password": "pass2"}
     response = client.post(url, data=form_data, follow=True)
     messages = list(response.context["messages"])
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "reset_pass_verification.html")
+    assert len(messages) == 1
+    assert str(messages[0]) == "Пароли не совпадают"
+
+
+@pytest.mark.django_db
+def test_reset_pass_verification_post_request_not_valid_type_code_show_error_message(
+    client, create_user
+):
+    url = reverse("reset_pass_verification", kwargs={"name": "TestUser", "token": "token"})
+    form_data = {"verification_code": "string", "password": "pass", "confirm_password": "pass"}
+    response = client.post(url, data=form_data, follow=True)
+    messages = list(response.context["messages"])
+
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
     assert len(messages) == 1
@@ -286,55 +361,11 @@ def test_reset_pass_verification_post_request_not_valid_code_show_error_message(
     client, create_user
 ):
     url = reverse("reset_pass_verification", kwargs={"name": "TestUser", "token": "token"})
-    form_data = {"verification_code": 1234}
+    form_data = {"verification_code": 1234, "password": "pass", "confirm_password": "pass"}
     response = client.post(url, data=form_data, follow=True)
     messages = list(response.context["messages"])
+
     assert response.status_code == 200
     assertTemplateUsed(response, "reset_pass_verification.html")
     assert len(messages) == 1
-    assert str(messages[0]) == "Введен неверный код."
-
-
-"""
-Tests for change_password
-"""
-
-
-def test_change_password_get_request_from_unauthorized_user_successed(client):
-    url = reverse("change_password", kwargs={"name": "name"})
-    response = client.get(url)
-    assert response.status_code == 200
-    assertTemplateUsed(response, "change_password.html")
-
-
-@pytest.mark.django_db
-def test_change_password_get_request_from_authorized_user_successed(
-    client, create_user, login_user
-):
-    url = reverse("change_password", kwargs={"name": "name"})
-    response = client.get(url)
-    assert response.status_code == 200
-    assertTemplateUsed(response, "change_password.html")
-
-
-@pytest.mark.django_db
-def test_change_password_post_request_not_existed_user_redirect(client):
-    url = reverse("change_password", kwargs={"name": "name"})
-    form_data = {"password": "password", "confirm_password": "password"}
-    response = client.post(url, data=form_data, follow=True)
-    assert response.status_code == 200
-    assertTemplateUsed(response, "home.html")
-
-
-@pytest.mark.django_db
-def test_change_password_post_request_not_confirmed_password_show_error_message(
-    client, create_user, login_user
-):
-    url = reverse("change_password", kwargs={"name": "TestUser"})
-    form_data = {"password": "password", "confirm_password": "other_password"}
-    response = client.post(url, data=form_data)
-    messages = list(response.context["messages"])
-    assert response.status_code == 200
-    assertTemplateUsed(response, "change_password.html")
-    assert len(messages) == 1
-    assert str(messages[0]) == "Пароли не совпадают"
+    assert str(messages[0]) == "Введен неверный проверочный код"

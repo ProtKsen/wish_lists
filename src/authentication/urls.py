@@ -13,5 +13,4 @@ urlpatterns = [
         views.reset_pass_verification,
         name="reset_pass_verification",
     ),
-    path("change_password/<name>/", views.change_password, name="change_password"),
 ]

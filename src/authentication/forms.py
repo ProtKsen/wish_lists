@@ -81,3 +81,11 @@ class NewPasswordForm(forms.Form):
         label="",
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Пароль"}),
     )
+
+    verification_code = forms.IntegerField(
+        max_value=9999,
+        min_value=1000,
+        required=True,
+        label="",
+        widget=forms.TextInput(attrs={"placeholder": "Код из письма"}),
+    )

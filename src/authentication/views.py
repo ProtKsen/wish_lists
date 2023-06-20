@@ -4,10 +4,13 @@ import uuid
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
+from django.http import HttpResponseNotFound
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
 
 from authentication.forms import (
     EmailForm,
@@ -20,12 +23,15 @@ from authentication.models import HashSalt
 
 
 def hashed(in_line: str, salt: str) -> str:
+    # hash string using "salt"
     return hashlib.sha256(salt.encode() + in_line.encode()).hexdigest()
 
 
+@require_http_methods(["GET", "POST"])
 def authlogin(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
+
         if form.is_valid():
             data = form.cleaned_data
             username = data["username"]
@@ -36,17 +42,23 @@ def authlogin(request):
                 return redirect("userprofile")
             else:
                 messages.error(request, "Неверное имя пользователя или пароль")
+        else:
+            messages.error(request, "Введены некорректные данные")
+
     form = LoginForm()
     context = {"form": form}
     return render(request, "login.html", context)
 
 
+@require_http_methods(["GET"])
 @login_required
 def authlogout(request):
     logout(request)
     return redirect("home")
 
 
+@require_http_methods(["GET", "POST"])
+@user_passes_test(lambda u: u.is_anonymous, login_url="home")
 def authregistration(request):
     if request.method == "POST":
         form = RegistrationForm(request.POST)
@@ -85,12 +97,22 @@ def authregistration(request):
     return render(request, "registration.html", context)
 
 
+@require_http_methods(["GET", "POST"])
+@user_passes_test(lambda u: u.is_anonymous, login_url="home")
 def authverification(request, name: str, token: str):
+    try:
+        user = User.objects.get(username=name)
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound(request.method)
+
+    if user.is_active:
+        return HttpResponseNotFound(request.method)
+
     if request.method == "POST":
         form = VerificationCodeForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            user = User.objects.get(username=name)
+
             salt = HashSalt.objects.get(user=user).salt
             verification_code = data["verification_code"]
             hashed_verification_code = hashed(str(verification_code), str(salt))
@@ -109,11 +131,15 @@ def authverification(request, name: str, token: str):
                 return redirect("userprofile")
             else:
                 messages.error(request, "Введен неверный код.")
+        else:
+            messages.error(request, "Код должен содержать 4 цифры.")
+
     form = VerificationCodeForm()
     context = {"form": form}
     return render(request, "verification.html", context)
 
 
+@require_http_methods(["GET", "POST"])
 def reset_password(request):
     if request.method == "POST":
         form = EmailForm(request.POST)
@@ -140,40 +166,40 @@ def reset_password(request):
     return render(request, "reset_password.html", context)
 
 
+@require_http_methods(["GET", "POST"])
 def reset_pass_verification(request, name: str, token: str):
-    if request.method == "POST":
-        form = VerificationCodeForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            verification_code = data["verification_code"]
-            user = User.objects.get(username=name)
-            salt = HashSalt.objects.get(user=user)
-            if hashed(str(verification_code), str(salt)) == token:
-                return redirect("change_password", user.username)
-            messages.error(request, "Введен неверный код.")
-    form = VerificationCodeForm()
-    context = {"form": form}
-    return render(request, "reset_pass_verification.html", context)
+    try:
+        user = User.objects.get(username=name)
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound(request.method)
 
-
-def change_password(request, name: str):
     if request.method == "POST":
         form = NewPasswordForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             password = data["password"]
             confirm_password = data["confirm_password"]
+            verification_code = data["verification_code"]
+
             if password == confirm_password:
-                user = User.objects.get(username=name)
-                user.set_password(password)
-                user.save()
-                email_subject = "Giftnet. Password was changed."
-                email_body = f"Hello, {user.username}! \n Your password was successfully changed."
-                email = EmailMessage(email_subject, email_body, to=[user.email])
-                email.send()
-                return redirect("login")
+                salt = HashSalt.objects.get(user=user)
+                if hashed(str(verification_code), str(salt)) == token:
+                    user.set_password(password)
+                    user.save()
+                    email_subject = "Giftnet. Password was changed."
+                    email_body = (
+                        f"Hello, {user.username}! \n Your password was successfully changed."
+                    )
+                    email = EmailMessage(email_subject, email_body, to=[user.email])
+                    email.send()
+                    return redirect("login")
+                messages.error(request, "Введен неверный проверочный код")
             else:
                 messages.error(request, "Пароли не совпадают")
-    form = NewPasswordForm()
+
+        else:
+            messages.error(request, "Код должен содержать 4 цифры.")
+
+    form = VerificationCodeForm()
     context = {"form": form}
-    return render(request, "change_password.html", context)
+    return render(request, "reset_pass_verification.html", context)
