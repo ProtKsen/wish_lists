@@ -9,4 +9,5 @@ urlpatterns = [
     path("authentication/", include("authentication.urls")),
     path("userprofile/", include("userprofile.urls")),
     path("friends/", include("friends.urls")),
+    path("silk/", include("silk.urls", namespace="silk")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
