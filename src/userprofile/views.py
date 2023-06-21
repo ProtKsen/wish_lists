@@ -15,13 +15,13 @@ ALLOWED_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg"]
 @user_passes_test(lambda u: u.is_active, login_url="login")
 def userprofile(request):
     wishes = Wish.objects.filter(user=request.user.id)
-    all_types = list(Wish.objects.filter(user=request.user.id).values("type"))
-    set_of_types = set([i["type"] for i in all_types])
-    context = {"wishes": wishes, "set_of_types": set_of_types}
+    types = set([wish.type for wish in wishes])
+    context = {"wishes": wishes, "types": types}
     return render(request, "user_profile.html", context)
 
 
 @login_required
+@user_passes_test(lambda u: u.is_active, login_url="login")
 def addwish(request):
     if request.method == "POST":
         form = WishForm(request.POST)
