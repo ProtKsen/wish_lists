@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.utils.datastructures import MultiValueDictKeyError
 from PIL import Image, UnidentifiedImageError
@@ -12,6 +12,7 @@ ALLOWED_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg"]
 
 
 @login_required
+@user_passes_test(lambda u: u.is_active, login_url="login")
 def userprofile(request):
     wishes = Wish.objects.filter(user=request.user.id)
     all_types = list(Wish.objects.filter(user=request.user.id).values("type"))
