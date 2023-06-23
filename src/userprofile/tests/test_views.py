@@ -215,3 +215,87 @@ def test_delete_wish_get_request_successed(client, create_user, login_user):
 
     assert response.status_code == 200
     assertTemplateUsed(response, "user_profile.html")
+
+
+"""
+Tests for edit_wish
+"""
+
+
+@pytest.mark.django_db
+def test_edit_wish_get_request_from_unauthorized_user_redirect(client, create_user):
+    user = User.objects.get(username="TestUser")
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+    url = reverse("editwish", kwargs={"id": wish.id})
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "login.html")
+
+
+@pytest.mark.django_db
+def test_edit_wish_get_request_from_authorized_permission_denied_failed(
+    client, create_user, login_user
+):
+    user = User.objects.create_user(
+        username="NewUser", email="test@test.com", password="TestPassword"
+    )
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+    url = reverse("editwish", kwargs={"id": wish.id})
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_edit_wish_get_request_from_authorized_user_not_existed_wish_failed(
+    client, create_user, login_user
+):
+    url = reverse("editwish", kwargs={"id": 123})
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_edit_wish_get_request_successed(client, create_user, login_user):
+    user = User.objects.get(username="TestUser")
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+    url = reverse("editwish", kwargs={"id": wish.id})
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "edit_wish.html")
+
+
+@pytest.mark.django_db
+def test_edit_wish_post_request_successed(client, create_user, login_user):
+    user = User.objects.get(username="TestUser")
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+
+    new_wish_data = {
+        "title": "New title",
+        "link": "New link",
+        "description": "New description",
+        "type": "New type",
+        "file": wish.image,
+    }
+
+    url = reverse("editwish", kwargs={"id": wish.id})
+    response = client.post(url, data=new_wish_data, follow=True)
+    wish = Wish.objects.get(user=user, id=wish.id)
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "user_profile.html")
+    assert wish.title == "New title"
+    assert wish.link == "New link"
+    assert wish.description == "New description"
+    assert wish.type == "New type"
