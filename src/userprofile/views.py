@@ -11,8 +11,8 @@ from .models import Wish
 ALLOWED_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg"]
 
 
-@login_required
 @user_passes_test(lambda u: u.is_active, login_url="login")
+@login_required
 def userprofile(request):
     wishes = Wish.objects.filter(user=request.user.id)
     types = set([wish.type for wish in wishes])
@@ -20,8 +20,8 @@ def userprofile(request):
     return render(request, "user_profile.html", context)
 
 
-@login_required
 @user_passes_test(lambda u: u.is_active, login_url="login")
+@login_required
 def addwish(request):
     if request.method == "POST":
         form = WishForm(request.POST)
@@ -52,6 +52,8 @@ def addwish(request):
             wish = Wish(**wish_data)
             wish.save()
             return redirect("userprofile")
+        else:
+            messages.add_message(request, messages.ERROR, "Данные указаны неверно")
 
     form = WishForm()
     context = {"form": form}
