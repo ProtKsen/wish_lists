@@ -11,6 +11,7 @@ Tests for login
 """
 
 
+@pytest.mark.django_db
 def test_authlogin_get_request_from_unauthorized_user_successed(client):
     url = reverse("login")
     response = client.get(url)
@@ -114,6 +115,7 @@ Tests for authregistration
 """
 
 
+@pytest.mark.django_db
 def test_authregistration_get_request_from_unauthorized_user_successed(client):
     url = reverse("registration")
     response = client.get(url)
@@ -264,6 +266,7 @@ Tests for reset_password
 """
 
 
+@pytest.mark.django_db
 def test_reset_password_get_request_successed(client):
     url = reverse("reset_password")
     response = client.get(url)
