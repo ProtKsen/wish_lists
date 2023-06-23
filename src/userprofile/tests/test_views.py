@@ -158,3 +158,60 @@ def test_addwish_post_request_not_valid_form_show_error_message(client, create_u
     assertTemplateUsed(response, "add_wish.html")
     assert len(messages) == 1
     assert str(messages[0]) == "Данные указаны неверно"
+
+
+"""
+Tests for delete_wish
+"""
+
+
+@pytest.mark.django_db
+def test_delete_wish_get_request_from_unauthorized_user_redirect(client, create_user):
+    user = User.objects.get(username="TestUser")
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+    url = reverse("deletewish", kwargs={"id": wish.id})
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "login.html")
+
+
+@pytest.mark.django_db
+def test_delete_wish_get_request_from_authorized_user_not_existed_wish_failed(
+    client, create_user, login_user
+):
+    url = reverse("deletewish", kwargs={"id": 123})
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_delete_wish_get_request_from_authorized_user_permission_denied_failed(
+    client, create_user, login_user
+):
+    user = User.objects.create_user(
+        username="NewUser", email="test@test.com", password="TestPassword"
+    )
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+    url = reverse("deletewish", kwargs={"id": wish.id})
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_delete_wish_get_request_successed(client, create_user, login_user):
+    user = User.objects.get(username="TestUser")
+    wish = Wish.objects.create(
+        user=user, title="New wish", link="link", description="Test description", type="General"
+    )
+    url = reverse("deletewish", kwargs={"id": wish.id})
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 200
+    assertTemplateUsed(response, "user_profile.html")
