@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.utils.datastructures import MultiValueDictKeyError
 from PIL import Image, UnidentifiedImageError
@@ -60,9 +62,17 @@ def addwish(request):
     return render(request, "add_wish.html", context)
 
 
+@user_passes_test(lambda u: u.is_active, login_url="login")
 @login_required
 def delete_wish(request, id: int):
-    wish = Wish.objects.get(id=id)
+    try:
+        wish = Wish.objects.get(id=id)
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound(request.method)
+
+    if wish.user != request.user:
+        return HttpResponseNotFound(request.method)
+
     image = wish.image
     if image.name != "img/wish_default.jpg":
         image.delete()
@@ -70,9 +80,17 @@ def delete_wish(request, id: int):
     return redirect("userprofile")
 
 
+@user_passes_test(lambda u: u.is_active, login_url="login")
 @login_required
 def edit_wish(request, id: int):
-    wish = Wish.objects.get(id=id)
+    try:
+        wish = Wish.objects.get(id=id)
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound(request.method)
+
+    if wish.user != request.user:
+        return HttpResponseNotFound(request.method)
+
     initial_data = {
         "title": wish.title,
         "link": wish.link,
@@ -114,9 +132,17 @@ def edit_wish(request, id: int):
         return render(request, "edit_wish.html", context)
 
 
+@user_passes_test(lambda u: u.is_active, login_url="login")
 @login_required
 def wish_details(request, id: int):
-    wish = Wish.objects.get(id=id)
+    try:
+        wish = Wish.objects.get(id=id)
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound(request.method)
+
+    if wish.user != request.user:
+        return HttpResponseNotFound(request.method)
+
     context = {
         "wish": wish,
     }
